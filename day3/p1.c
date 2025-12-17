@@ -8,31 +8,40 @@ struct String {
 };
 
 int next(struct String *s) {
-	if (++s->pos < s->len)
+	if (s->pos++ < s->len)
 		return 0;
 	return 1;
 }
 
 int expectNum(struct String *s, int *n) {
+	int d3,d2,d1;
+	d1 = d2 = d3 = -1;
 	if (s->str[s->pos] < 0x30 || s->str[s->pos] > 0x39 ) {
-		next(s);
 		return 1;
 	}
-	*n = s->str[s->pos] - 0x30;
+	d3 = s->str[s->pos] - 0x30;
 	if (next(s))
 		return 1;
 	if (s->str[s->pos] < 0x30 || s->str[s->pos] > 0x39 )
 		goto out;
-	*n += 10*(s->str[s->pos] - 0x30);
+	d2 = (s->str[s->pos] - 0x30);
 	if (next(s))
 		return 1;
 	if (s->str[s->pos] < 0x30 || s->str[s->pos] > 0x39 )
-		goto out;;
-	*n += 100*(s->str[s->pos] - 0x30);
+		goto out;
+	d1 = (s->str[s->pos] - 0x30);
 	if (next(s))
 		return 1;
-	
+
 out:
+	*n = d3;
+	if (d1 != -1 && d2 != -1)
+		*n = 100*d3 + 10*d2 + d1;
+	else if (d2 != -1)
+		*n = 10*d3 + d2;
+	else
+		*n = d3;
+
 	return 0;
 }
 
@@ -40,8 +49,6 @@ int expect(struct String *s, char c) {
 	int ret = 0;
 	if (s->str[s->pos] != c)
 		ret = 1;
-	if (next(s))
-		return 1;
 	return ret;
 }
 
@@ -56,26 +63,39 @@ unsigned long parse(char *str) {
 
 	int n1,n2;
 	while (s.pos < s.len) {
-		if (expect(&s, 'm'))
-			goto end;
+		if (expect(&s, 'm')) {
+			next(&s);
+			continue;
+		}
+		if (next(&s))
+			continue;
 		if (expect(&s, 'u'))
-			goto end;
+			continue;
+		if (next(&s))
+			continue;
 		if (expect(&s, 'l'))
-			goto end;
+			continue;
+		if (next(&s))
+			continue;
 		if (expect(&s, '('))
-			goto end;
+			continue;
+		if (next(&s))
+			continue;
 		if (expectNum(&s, &n1))
-			goto end;
+			continue;
 		if (expect(&s, ','))
-			goto end;
+			continue;
+		if (next(&s))
+			continue;
 		if (expectNum(&s, &n2))
-			goto end;
+			continue;
 		if (expect(&s, ')'))
-			goto end;
-		
-		//printf("%d x %d = %d\n", n1, n2, n1*n2);
+			continue;
+		if (next(&s))
+			continue;
+
+		printf("%d x %d = %d\n", n1, n2, n1*n2);
 		sum += n1 * n2;
-	end:	
 	}
 	printf("sum: %lu\n", sum);
 	return sum;
