@@ -1,9 +1,28 @@
 #include <stdio.h>
 #include <string.h>
 
+struct array {
+	char a[4];
+	int size;
+};
+
+void insert(struct array *a, char n) {
+	a->a[a->size++] = n;
+}
+
+int isInArray(struct array *a, char n) {
+	for (int i = 0; i < a->size; i++) {
+		if (a->a[i] == n)
+			return 1;
+	}
+	return 0;
+}
+
 int numLines;
 char map[10000][10000];
+struct array mapHist[10000][10000];
 char mapOrig[10000][10000];
+char mapPath[10000][10000];
 
 void print() {
 	for (int i = 1; i < numLines-1; i++)
@@ -15,6 +34,9 @@ int _walk(int posi, int posj) {
 	int count = 0;
 	char old = 'I';
 	for (;;) {
+		//print();
+		//printf("%d %d\n", posi, posj);
+
 		if (old == 'F')
 			return count;
 
@@ -24,6 +46,11 @@ int _walk(int posi, int posj) {
 		if (old == map[posi][posj]) {
 			return -1;
 		}
+		
+		if (isInArray(&mapHist[posi][posj], map[posi][posj]))
+			return -1;
+		
+		insert(&mapHist[posi][posj], map[posi][posj]);
 
 		if (map[posi][posj] == '^') {
 			if (map[posi-1][posj] == '#') {
@@ -110,20 +137,26 @@ int main(int argv, char *argc[]) {
 
 	memcpy(mapOrig, map, 10000*10000*sizeof(char));		
 
+	walk();
+	memcpy(mapPath, map, 10000*10000*sizeof(char));		
+
 	int count = 0;	
 	for (int i = 1; i < numLines-1; i++) {
 		for (int j = 0; j < strlen(mapOrig[i]); j++) {
-			if (mapOrig[i][j] == '.') {
+			if (mapPath[i][j] == '<' || mapPath[i][j] == '^' || mapPath[i][j] == '>' || mapPath[i][j] == 'v' ) {
 				memcpy(map, mapOrig, 10000*10000*sizeof(char));		
+				memset(mapHist, 0, 10000*10000*sizeof(struct array));
 				map[i][j] = '#';
+				
+				printf("count: %d i: %d j: %d\n", count, i, j);
+
 				if (walk() == -1)
 					count++;
-				printf("count: %d i: %d j: %d\n", count, i, j);
 			}
 		}
 	}
 
-	printf("count: %d\n", count);
+	printf("count: %d\n", count-1);
 	return 0;
 }
 
