@@ -49,25 +49,32 @@ int countAnt() {
 }
 
 void plotAnt(int ai, int aj, int bi, int bj) {
-	int di, dj;
+	int di, dj, diOrig, djOrig;
 	
-	di = ai-bi;
-	dj = aj-bj;
+	mapAnt[ai][aj] = '#';
+	mapAnt[bi][bj] = '#';
 
-	if (ai-di != bi && aj-dj != bj) {
-		if (ai-di >= 0 && aj-dj >= 0)
-			mapAnt[ai-di][aj-dj] = '#';
-	} else {
-		if (ai+di < numLines && aj+dj < numCols)
-			mapAnt[ai+di][aj+dj] = '#';
-	}
+	diOrig = ai-bi;
+	djOrig = aj-bj;
+	for(int k = 1; k < numLines; k++) {
+		di = diOrig * k;
+		dj = djOrig * k;
 
-	if (bi+di != ai && bj+dj != aj) {
-		if (bi+di < numLines && bj+dj < numCols)
-			mapAnt[bi+di][bj+dj] = '#';
-	} else {
-		if (bi-di >= 0 && bj-dj >= 0)
-			mapAnt[bi-di][bj-dj] = '#';
+		if (ai-di != bi && aj-dj != bj) {
+			if (ai-di >= 0 && aj-dj >= 0)
+				mapAnt[ai-di][aj-dj] = '#';
+		} else {
+			if (ai+di < numLines && aj+dj < numCols)
+				mapAnt[ai+di][aj+dj] = '#';
+		}
+
+		if (bi+di != ai && bj+dj != aj) {
+			if (bi+di < numLines && bj+dj < numCols)
+				mapAnt[bi+di][bj+dj] = '#';
+		} else {
+			if (bi-di >= 0 && bj-dj >= 0)
+				mapAnt[bi-di][bj-dj] = '#';
+		}
 	}
 }
 
