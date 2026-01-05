@@ -65,7 +65,7 @@ unsigned long blink(int step, unsigned long n) {
 		return 1;
 
 	printf("n: %lu step: %d\n", n, step);
-	if (mem[step][n])
+	if (n < 9000000000 && mem[step][n])
 		return mem[step][n];
 	unsigned long r = 0;
 
@@ -78,7 +78,8 @@ unsigned long blink(int step, unsigned long n) {
 		r += blink(step-1, n*2024);
 
 	printf("n: %lu\n", n);
-	mem[step][n] = r;
+	if (n < 9000000000)
+		mem[step][n] = r;
 	return r;
 }
 
@@ -94,8 +95,10 @@ int main(int argv, char *argc[]) {
 	unsigned long n;
 
 
-	for (int i =0; i < 76; i++)
-		mem[i] = malloc(900000000000*sizeof(unsigned long));
+	for (int i = 0; i < 76; i++) {
+		mem[i] = malloc(9000000000*sizeof(unsigned int));
+		printf("%p\n", &mem[i]);
+	}
 
 	getline(&line, &len, stdin);
 
